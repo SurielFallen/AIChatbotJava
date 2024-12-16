@@ -13,22 +13,37 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 public class ChatRunner {
+    private LLM llm = new LLM();
+    private Scanner in = new Scanner(System.in);
+    private List<OllamaChatMessage> history;
+    String input = "";
 
     public static void main(String[] args) throws IOException, InterruptedException, OllamaBaseException {
-        LLM llm = new LLM();
-        Scanner in = new Scanner(System.in);
-        String input = "";
+        ChatRunner chatRunner = new ChatRunner();
+        chatRunner.initializeLLM();
+        chatRunner.runChat();
 
-        // create llm with prompt
-        System.out.println();
-        System.out.println("Input prompt file name, excluding extension type");
-        String fileName = in.nextLine();
+        System.out.println("Save last conversation?");
+        if(chatRunner.in.nextLine().equalsIgnoreCase("yes")){
+            chatRunner.saveChat();
+        }
+    }
 
-        List<OllamaChatMessage> history = llm.getPromptRequestModel(fileName).getMessages();
-        System.out.println();
+    private void saveChat() throws IOException {
+        Logger logger = Logger.getLogger("ChatHistoryLogger");
+        FileHandler fileHandler = new FileHandler("logs/ChatLog.log");
+        logger.addHandler(fileHandler);
+        logger.setUseParentHandlers(false);
+        fileHandler.setFormatter(new SimpleFormatter());
+        for(OllamaChatMessage line : history) {
+            logger.info(line.getContent());
+        }
+    }
 
+    private void runChat() throws OllamaBaseException, IOException, InterruptedException {
         System.out.println("Chat Started:");
         input = in.nextLine();
+
         // create next userQuestion
         while(!input.equals("end")) {
             OllamaStreamHandler streamHandler = new ConsoleOutputStreamHandler();
@@ -38,18 +53,14 @@ public class ChatRunner {
             System.out.println();
             input = in.nextLine();
         }
+    }
 
-        System.out.println("Save last conversation?");
-        boolean save = in.nextBoolean();
-        if(save){
-            Logger logger = Logger.getLogger("ChatHistoryLogger");
-            FileHandler fileHandler = new FileHandler("logs/ChatLog.log");
-            logger.addHandler(fileHandler);
-            logger.setUseParentHandlers(false);
-            fileHandler.setFormatter(new SimpleFormatter());
-            for(OllamaChatMessage line : history) {
-                logger.info(line.getContent().toString());
-            }
-        }
+    // create llm with prompt
+    private void initializeLLM(){
+        System.out.println();
+        System.out.println("Input prompt file name, excluding extension type");
+        String fileName = in.nextLine();
+        System.out.println();
+        history = llm.getPromptRequestModel(fileName).getMessages();
     }
 }
