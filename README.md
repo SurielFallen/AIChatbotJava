@@ -1,4 +1,4 @@
-SebastAIn is a personal chat bot based off of a locally running LLM. By using a custom prompt input file, users can define the AI's personality and purpose. 
+This project is a personal chat bot based off of a locally running LLM. By using a custom prompt input file, users can define the AI's personality and purpose. 
 The project uses Ollama for pulling and running a model, along with Ollama4j to interface with the running model.
 
 ![DesignDoc](https://github.com/user-attachments/assets/259c6505-536f-44c1-8c1d-8ab8c14742c1)
